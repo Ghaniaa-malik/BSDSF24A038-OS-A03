@@ -35,4 +35,8 @@ jobs:
             v8) title="Release 8 - Shell Variables"; notes="Shell variable assignment and expansion release." ;;
             *) title="Release $tag"; notes="PA-03 shell release." ;;
           esac
-          gh release create "$tag" bin/myshell --title "$title" --notes "$notes"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" bin/myshell --clobber
+          else
+            gh release create "$tag" bin/myshell --title "$title" --notes "$notes"
+          fi

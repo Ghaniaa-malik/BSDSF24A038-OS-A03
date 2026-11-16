@@ -13,7 +13,8 @@ make
 ./bin/myshell
 ```
 
-Use `make clean` to remove generated files. Readline is linked with `-lreadline`.
+Run the automated feature smoke checks with `make test`. Use `make clean` to
+remove generated files. Readline is linked with `-lreadline`.
 
 ## Supported features
 

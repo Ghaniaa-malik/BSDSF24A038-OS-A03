@@ -5,8 +5,11 @@ LDLIBS ?= -lreadline
 SRC := src/main.c src/shell.c src/execute.c
 OBJ := $(SRC:.c=.o)
 
-.PHONY: all clean
+.PHONY: all clean test
 all: bin/myshell
+
+test: bin/myshell
+	bash tests/smoke.sh ./bin/myshell
 
 bin/myshell: $(OBJ)
 	@mkdir -p bin

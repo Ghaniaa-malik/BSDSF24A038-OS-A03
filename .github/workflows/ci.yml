@@ -15,8 +15,5 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y build-essential libreadline-dev
       - name: Build
         run: make
-      - name: Smoke check
-        run: |
-          output=$(printf 'echo PA03-smoke-ok\nexit\n' | ./bin/myshell)
-          printf '%s\n' "$output"
-          printf '%s\n' "$output" | grep -q 'PA03-smoke-ok'
+      - name: Smoke check shell features
+        run: make test

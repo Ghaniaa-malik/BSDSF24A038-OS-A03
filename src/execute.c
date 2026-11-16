@@ -25,33 +25,38 @@ static int is_assignment(const char *s, char **name, char **value)
 static int builtin(Shell *shell, char **argv)
 {
     if (!argv[0]) return 1;
-    if (!strcmp(argv[0], "exit")) { shell->should_exit = 1; return 1; }
+    if (!strcmp(argv[0], "exit")) { shell->should_exit = 1; shell->last_status = 0; return 1; }
     if (!strcmp(argv[0], "cd")) {
         const char *path = argv[1] ? argv[1] : getenv("HOME");
         if (!path || chdir(path) < 0) { perror("cd"); shell->last_status = 1; }
+        else shell->last_status = 0;
         return 1;
     }
     if (!strcmp(argv[0], "help")) {
         puts("Built-ins: cd exit help jobs history set");
         puts("Syntax: command [args] [< file] [> file] [| command] [; command] [&]");
+        shell->last_status = 0;
         return 1;
     }
     if (!strcmp(argv[0], "jobs")) {
         if (!shell->job_count) puts("No active background jobs.");
         for (size_t i = 0; i < shell->job_count; ++i)
             printf("[%zu] %ld  %s\n", i + 1, (long)shell->jobs[i].pid, shell->jobs[i].command);
+        shell->last_status = 0;
         return 1;
     }
-    if (!strcmp(argv[0], "history")) { shell_print_history(shell); return 1; }
+    if (!strcmp(argv[0], "history")) { shell_print_history(shell); shell->last_status = 0; return 1; }
     if (!strcmp(argv[0], "set")) {
         for (Variable *v = shell->variables; v; v = v->next)
             printf("%s=%s\n", v->name, v->value);
+        shell->last_status = 0;
         return 1;
     }
     char *name = NULL, *value = NULL;
     if (is_assignment(argv[0], &name, &value) && !argv[1]) {
         shell_set_variable(shell, name, value);
         free(name); free(value);
+        shell->last_status = 0;
         return 1;
     }
     free(name); free(value);

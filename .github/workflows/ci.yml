@@ -1,0 +1,22 @@
+name: Build shell
+
+on:
+  push:
+    branches: [main, feature-built-ins, feature-history, feature-readline, feature-io-redirection, feature-multitasking, feature-if-then-else, feature-variables]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential libreadline-dev
+      - name: Build
+        run: make
+      - name: Smoke check
+        run: |
+          output=$(printf 'echo PA03-smoke-ok\nexit\n' | ./bin/myshell)
+          printf '%s\n' "$output"
+          printf '%s\n' "$output" | grep -q 'PA03-smoke-ok'

@@ -1,0 +1,41 @@
+name: Build and publish release asset
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential libreadline-dev
+      - name: Build shell
+        run: make
+      - name: Smoke check
+        run: |
+          output=$(printf 'echo PA03-smoke-ok\nexit\n' | ./bin/myshell)
+          printf '%s\n' "$output"
+          printf '%s\n' "$output" | grep -q 'PA03-smoke-ok'
+      - name: Create GitHub release and attach binary
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$GITHUB_REF_NAME"
+          case "$tag" in
+            v1.0-base) title="Release 1 - The Base Shell"; notes="Initial shell release." ;;
+            v2) title="Release 2 - Built-in Commands"; notes="Shell built-in command release." ;;
+            v3) title="Release 3 - Command History"; notes="Command history release." ;;
+            v4) title="Release 4 - Readline"; notes="GNU Readline and completion release." ;;
+            v5) title="Release 5 - Redirection and Pipes"; notes="I/O redirection and pipeline release." ;;
+            v6) title="Release 6 - Multitasking"; notes="Command chaining and background jobs release." ;;
+            v7) title="Release 7 - Conditional Blocks"; notes="if/then/else/fi release." ;;
+            v8) title="Release 8 - Shell Variables"; notes="Shell variable assignment and expansion release." ;;
+            *) title="Release $tag"; notes="PA-03 shell release." ;;
+          esac
+          gh release create "$tag" bin/myshell --title "$title" --notes "$notes"
